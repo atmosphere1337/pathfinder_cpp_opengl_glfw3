@@ -1,9 +1,11 @@
 #include "backend_header.h"
+#include "frontend_header.h"
 #include "include/GLFW/glfw3.h"
 #include "include/GLFW/glfw3native.h"
 #include <iostream>
 int main()
 {
+	frontend frnt;
 	if (!glfwInit())
 		return -1;
 	GLFWwindow* window;
@@ -17,26 +19,14 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		glBegin(GL_TRIANGLES);
-			glColor3f(170/255.0, 0.0, 0.0);
-			glVertex2f(0.0,0.0);
-			glVertex2f(0.75, 0.75);
-			glVertex2f(0.75, 0.0);
-		glEnd();
-
-		//glClear(GL_COLOR_BUFFER_BIT);
+		frnt.print();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 	glfwTerminate();
 	return 0;
 	
-
-
-
-
 	backend bck;
-	//bck.map_init();
 	bck.map_print();
 
 
