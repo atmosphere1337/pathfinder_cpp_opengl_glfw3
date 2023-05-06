@@ -19,7 +19,9 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		frnt.print();
+		frnt.print_grid();
+		frnt.print_cell(1,2,0);
+		frnt.print_cell(0,0,1);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
