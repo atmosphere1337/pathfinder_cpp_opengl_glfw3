@@ -80,51 +80,69 @@ bool backend::dfs()
 }
 bool backend::bfs()
 {
-	std::queue<int> que;
-	que.push(start_x);
-	que.push(start_y);
+	std::map<point, point> backwards_map;
+	std::queue<point> que2;
+	que2.push({start_x, start_y});
+	point buf;
 	int x, y;
-	while (que.size() != 0)
+	while (que2.size() != 0)
 	{
-		y = que.front();
-		que.pop();
-		x = que.front();
-		que.pop();
+		buf = que2.front();
+		y = buf.y;
+		x = buf.x;
+		que2.pop();
 		if (map[y][x] == 3)
 		{
+			while (buf.y != start_y || buf.x != start_x)
+			{
+				buf = backwards_map[buf];
+				path.push_back(buf);
+			}
+			if (path.size() > 1)
+				path.pop_back();
+			clear_map_paths();
+			show_path();
 			return true;
 		}
 		if ((x < map_width - 1) && (map[y][x + 1] == 0 || map[y][x + 1] == 3))
 		{
-			que.push(x + 1);
-			que.push(y);
+			backwards_map[{y, x + 1}] = {y, x};
+			que2.push({y, x + 1});
 			if (map[y][x + 1] == 0)
 				map[y][x + 1] = 4;
 		}
 		if ((y < map_height - 1) && (map[y + 1][x] == 0 || map[y + 1][x] == 3))
 		{
-			que.push(x);
-			que.push(y + 1);
+			backwards_map[{y + 1, x}] = {y, x};
+			que2.push({y + 1, x});
 			if (map[y + 1][x] == 0)
 				map[y + 1][x] = 4;
 		}
 		if ((y > 0) && (map[y - 1][x] == 0 || map[y - 1][x] == 3))
 		{
-			que.push(x);
-			que.push(y - 1);
+			backwards_map[{y - 1, x}] = {y, x};
+			que2.push({y - 1, x});
 			if (map[y - 1][x] == 0)
 				map[y - 1][x] = 4;
 		}
 		if ((x > 0) && (map[y][x - 1] == 0 || map[y][x - 1] == 3))
 		{
-			que.push(x - 1);
-			que.push(y);
+			backwards_map[{y, x - 1}] = {y, x};
+			que2.push({y, x - 1});
 			if (map[y][x - 1] == 0)
 				map[y][x - 1] = 4;
 		}
 	}
+	clear_map_paths();
 	return false;
 }
+int** backend::map_get(int& height, int& width)
+{
+	height = map_height;
+	width = map_width;
+	return map;
+}
+
 void backend::map_random_generate(int height, int width)
 {
 
@@ -168,3 +186,29 @@ void backend::map_print(void)
 		for (int j = 0; j < map_width; j++)
 			std::cout << map[i][j] << " ";
 }
+void backend::clear_map_paths()
+{
+	for (int i = 0; i < map_height; i++)
+		for (int j = 0; j < map_width; j++)
+		{
+			if (map[i][j] == 4 || map[i][j] == 5)
+				map[i][j] = 0;
+		}
+}
+void backend::show_path()
+{
+	for (int i = 0; i < path.size(); i++)
+		map[path[i].y][path[i].x] = 5;
+}
+bool operator<(const point & p1, const point & p2)
+{
+	if (p1.y < p2.y)
+		return true;
+	else if (p1.y == p2.y)
+	{
+		return p1.x < p2.x;
+	}
+	else
+		return false;
+}
+

@@ -38,17 +38,24 @@ void frontend::print_cell(int y, int x, int color)
 	glBegin(GL_QUADS);
 		if (color == 0)
 			glColor3f(1.0, 1.0, 1.0);
-		if (color == 1)
+		else if (color == 1)
 			glColor3f(0.3, 0.3, 0.3);
+		else if (color == 5)
+			glColor3f(0.0, 0.0, 1.0);
+		else 
+			glColor3f(1.0, 0.0, 0.0);
 		glVertex2f(start_x, start_y);
 		glVertex2f(start_x, start_y + shift_y);
 		glVertex2f(start_x + shift_x, start_y + shift_y);
 		glVertex2f(start_x + shift_x, start_y);
 	glEnd();
 }
-void frontend::print_field(void)
+void frontend::print_field(int **input_map, int input_height, int input_width)
 {
-	
+	print_grid();
+	for (int i = 0; i < input_height; i++)
+		for (int j = 0; j < input_width; j++)
+			print_cell(i, j, input_map[i][j]);
 }
 
 

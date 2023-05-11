@@ -1,4 +1,7 @@
 #pragma once
+#include <vector>
+#include <iostream>
+#include "backend_header.h"
 class frontend
 {
 	private:
@@ -10,5 +13,5 @@ class frontend
 		void system_mount(int y, int x);
 		void print_grid(void);
 		void print_cell(int y, int x, int color);
-		void print_field(void);
+		void print_field(int ** input_map, int input_height, int input_width);
 };
