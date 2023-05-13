@@ -17,6 +17,7 @@ const int maze_example1[10][13] = {
 };
 const int maze_example1_height = 10;
 const int maze_example1_width = 13;
+point backend::ways_shift[4] = { {0, 1}, {1, 0}, {-1, 0}, {0, -1} };
 
 backend::backend(void)
 {
@@ -33,64 +34,18 @@ backend::backend(void)
 }
 bool backend::dfs()
 {
-	std::stack<int> stck;
-	stck.push(start_x);
-	stck.push(start_y);
+	path.clear();
+	std::map<point, point> backwards_map;
+	std::stack<point> stck;
+	stck.push({start_y, start_x});
+	point buf;
 	int x, y;
 	while (stck.size() != 0)
 	{
-		y = stck.top();
-		stck.pop();
-		x = stck.top();
-		stck.pop();
-		if (map[y][x] == 3)
-		{
-			return true;
-		}
-		if ((x < map_width - 1) && (map[y][x + 1] == 0 || map[y][x + 1] == 3))
-		{
-			stck.push(x + 1);
-			stck.push(y);
-			if (map[y][x + 1] == 0)
-				map[y][x + 1] = 4;
-		}
-		if ((y < map_height - 1) && (map[y + 1][x] == 0 || map[y + 1][x] == 3))
-		{
-			stck.push(x);
-			stck.push(y + 1);
-			if (map[y + 1][x] == 0)
-				map[y + 1][x] = 4;
-		}
-		if ((y > 0) && (map[y - 1][x] == 0 || map[y - 1][x] == 3))
-		{
-			stck.push(x);
-			stck.push(y - 1);
-			if (map[y - 1][x] == 0)
-				map[y - 1][x] = 4;
-		}
-		if ((x > 0) && (map[y][x - 1] == 0 || map[y][x - 1] == 3))
-		{
-			stck.push(x - 1);
-			stck.push(y);
-			if (map[y][x - 1] == 0)
-				map[y][x - 1] = 4;
-		}
-	}
-	return false;
-}
-bool backend::bfs()
-{
-	std::map<point, point> backwards_map;
-	std::queue<point> que2;
-	que2.push({start_x, start_y});
-	point buf;
-	int x, y;
-	while (que2.size() != 0)
-	{
-		buf = que2.front();
+		buf = stck.top();
 		y = buf.y;
 		x = buf.x;
-		que2.pop();
+		stck.pop();
 		if (map[y][x] == 3)
 		{
 			while (buf.y != start_y || buf.x != start_x)
@@ -104,33 +59,56 @@ bool backend::bfs()
 			show_path();
 			return true;
 		}
-		if ((x < map_width - 1) && (map[y][x + 1] == 0 || map[y][x + 1] == 3))
+		for (int i = 0; i < 4; i++)
 		{
-			backwards_map[{y, x + 1}] = {y, x};
-			que2.push({y, x + 1});
-			if (map[y][x + 1] == 0)
-				map[y][x + 1] = 4;
+			if (bounds_check(i, y, x) && (map[y + ways_shift[i].y][x + ways_shift[i].x] == 0 || map[y + ways_shift[i].y][x + ways_shift[i].x] == 3))
+			{
+				backwards_map[{y + ways_shift[i].y, x + ways_shift[i].x}] = {y, x};
+				stck.push({y + ways_shift[i].y, x + ways_shift[i].x});
+				if (map[y + ways_shift[i].y][x + ways_shift[i].x] == 0)
+					map[y + ways_shift[i].y][x + ways_shift[i].x] = 4;
+			}
 		}
-		if ((y < map_height - 1) && (map[y + 1][x] == 0 || map[y + 1][x] == 3))
+
+	}
+	return false;
+}
+bool backend::bfs()
+{
+	path.clear();
+	std::map<point, point> backwards_map;
+	std::queue<point> que;
+	que.push({start_y, start_x});
+	point buf;
+	int x, y;
+	while (que.size() != 0)
+	{
+		buf = que.front();
+		y = buf.y;
+		x = buf.x;
+		que.pop();
+		if (map[y][x] == 3)
 		{
-			backwards_map[{y + 1, x}] = {y, x};
-			que2.push({y + 1, x});
-			if (map[y + 1][x] == 0)
-				map[y + 1][x] = 4;
+			while (buf.y != start_y || buf.x != start_x)
+			{
+				buf = backwards_map[buf];
+				path.push_back(buf);
+			}
+			if (path.size() > 1)
+				path.pop_back();
+			clear_map_paths();
+			show_path();
+			return true;
 		}
-		if ((y > 0) && (map[y - 1][x] == 0 || map[y - 1][x] == 3))
+		for (int i = 0; i < 4; i++)
 		{
-			backwards_map[{y - 1, x}] = {y, x};
-			que2.push({y - 1, x});
-			if (map[y - 1][x] == 0)
-				map[y - 1][x] = 4;
-		}
-		if ((x > 0) && (map[y][x - 1] == 0 || map[y][x - 1] == 3))
-		{
-			backwards_map[{y, x - 1}] = {y, x};
-			que2.push({y, x - 1});
-			if (map[y][x - 1] == 0)
-				map[y][x - 1] = 4;
+			if (bounds_check(i, y, x) && (map[y + ways_shift[i].y][x + ways_shift[i].x] == 0 || map[y + ways_shift[i].y][x + ways_shift[i].x] == 3))
+			{
+				backwards_map[{y + ways_shift[i].y, x + ways_shift[i].x}] = {y, x};
+				que.push({y + ways_shift[i].y, x + ways_shift[i].x});
+				if (map[y + ways_shift[i].y][x + ways_shift[i].x] == 0)
+					map[y + ways_shift[i].y][x + ways_shift[i].x] = 4;
+			}
 		}
 	}
 	clear_map_paths();
@@ -199,6 +177,33 @@ void backend::show_path()
 {
 	for (int i = 0; i < path.size(); i++)
 		map[path[i].y][path[i].x] = 5;
+}
+bool backend::bounds_check(int border_way, int y, int x)
+{
+	switch (border_way)
+	{
+		case 0:
+			return x < map_width - 1;
+		case 1:
+			return y < map_height - 1;
+		case 2:
+			return y > 0;
+		case 3:
+			return x > 0;
+		default:
+			 break;
+	}
+	return false;
+}
+void backend::set_start(int y, int x)
+{
+	if (map[y][x] != 1 && y >= 0 && y < map_height && x >= 0 && x < map_width)
+	{
+		map[start_y][start_x] = 0;
+		start_x = x;
+		start_y = y;
+		map[y][x] = 2;
+	}
 }
 bool operator<(const point & p1, const point & p2)
 {

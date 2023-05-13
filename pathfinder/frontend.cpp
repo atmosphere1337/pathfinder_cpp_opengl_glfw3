@@ -1,9 +1,9 @@
 #include "frontend_header.h"
-#include "include/GLFW/glfw3.h"
-#include "include/GLFW/glfw3native.h"
 
-frontend::frontend(void)
+frontend::frontend(int width, int height)
 {
+	window_height = height;
+	window_width = width;
 	system_mount(10, 10);
 }
 void frontend::system_mount(int y, int x)
@@ -57,6 +57,13 @@ void frontend::print_field(int **input_map, int input_height, int input_width)
 		for (int j = 0; j < input_width; j++)
 			print_cell(i, j, input_map[i][j]);
 }
-
+bool frontend::translate_pixels_to_cells(float in_y, float in_x, int& out_y, int& out_x) 
+{
+	float gl_ycoord = 2 * in_y / (float)window_height - (1 + origin_y);
+	float gl_xcoord = 2 * in_x / (float)window_width - (1 + origin_x);
+	out_x = gl_xcoord / shift_x;
+	out_y = gl_ycoord / shift_y;
+	return true;
+}
 
 

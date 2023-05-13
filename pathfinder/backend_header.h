@@ -10,9 +10,11 @@ class backend
 		int **map;
 		unsigned int map_height, map_width;
 		int start_x, start_y, end_x, end_y;
+		static point ways_shift[4];
 		std::vector<point> path;
 		void map_memory_free(void);
 		void map_memory_alloc(int height, int width);
+		bool bounds_check(int border_way, int y, int x);
 	public:
 		backend(void);
 		void map_random_generate(int height, int width);
@@ -24,5 +26,6 @@ class backend
 		int** map_get(int& input_height, int& input_width);
 		void show_path();
 		void clear_map_paths();
+		void set_start(int y, int x);//
 };
 
